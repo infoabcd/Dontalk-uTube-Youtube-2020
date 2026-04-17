@@ -6,6 +6,9 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  icons: {
+    icon: "/favicon.ico",
+  },
   title: {
     default: "Dontalk-uTube — 影片分享",
     template: "%s | Dontalk-uTube",

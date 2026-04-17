@@ -45,7 +45,7 @@ export default function SiteFooter() {
           </Link>
           <br />
           本項目倉庫：
-          <Link href="https://github.com/Dontalk-org/utube-nextjs" target="_blank" rel="noreferrer">
+          <Link href="https://github.com/infoabcd/Dontalk-uTube-Youtube-2020" target="_blank" rel="noreferrer">
             Dontalk(.org) - uTube
           </Link>
         </span>

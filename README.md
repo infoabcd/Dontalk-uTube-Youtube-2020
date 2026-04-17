@@ -1,6 +1,6 @@
-# UTube Next.js（uTube）
+# Dontalk(.org) UTube Next.js（uTube）
 
-原項目地址 - https://github.com/DUO-1080/utube/
+基於倉庫 - https://github.com/DUO-1080/utube/
 
 基於 **Next.js App Router**、**Prisma（SQLite）** 與 **JWT Cookie 登入** 的本機影片站。上載的影片會在伺服器端以 **ffmpeg** 轉成多碼率 **HLS（m3u8 + ts）**，瀏覽器透過 **hls.js** 自適應播放，並可在支援的瀏覽器中手動切換清晰度。
 
@@ -13,9 +13,35 @@
 - **刪除影片**：`DELETE /api/videos/[id]` — 登入用戶可刪除自己上載的影片；特權帳號（見下方 `ADMIN_USER_IDS` / `ADMIN_EMAILS`）可刪除任何人的影片，並會一併刪除 `public/uploads/videos/<id>/` 目錄
 - **認證**：註冊／登入，`httpOnly` Cookie 儲存 JWT；可選 **邀請碼**（`INVITE_CODES`）；登入／註冊有 **IP 速率限制**（程式內記憶體，多實例等我後續改 Redis）
 
+---
+
+## 截圖概覽
+
+主頁
+![Home00](screenshots/Home00.png)
+
+多視頻主頁
+![Home01](screenshots/Home01.png)
+
+影片頁
+![VideoPlay](screenshots/VideoPlay.png)
+
+登入介面
+![Login](screenshots/Login.png)
+
+上傳影片
+![UploadVideo](screenshots/UploadVideo.png)
+
+用戶頁
+![UserPages](screenshots/UserPages.png)
+
+---
+
 ## 環境要求
 
-- **Node.js** 18+（建議 20+）
+**生產部署看最後**
+
+- **Node.js** 20 LTS（建議 20+）
 - 依賴內的 **`@ffmpeg-installer/ffmpeg`** 會附帶對應平台的 ffmpeg 二進位檔；若轉碼失敗，請在本機安裝 ffmpeg，並可將 `FFMPEG_PATH` 指向可執行檔（選用，一般無需）
 
 ## 快速開始
@@ -29,7 +55,7 @@ npm install
 
 ```bash
 # .env 或 .env.local 中設定 DATABASE_URL，例如：
-# DATABASE_URL="file:./prisma/dev.db"
+# DATABASE_URL="file:./prisma/utube.db"
 
 npx prisma migrate deploy
 npx prisma generate
@@ -53,7 +79,7 @@ npm run dev
 
 | 變數 | 說明 |
 |------|------|
-| `DATABASE_URL` | SQLite 路徑，例如 `file:./prisma/dev.db` |
+| `DATABASE_URL` | SQLite 路徑，例如 `file:./prisma/utube.db` |
 | `JWT_SECRET` | JWT 簽名密鑰（生產環境務必修改） |
 | `NEXT_PUBLIC_SITE_URL` | 選用，正式網址（含協議），供 `metadataBase`、Open Graph、`/sitemap.xml`／`robots.txt` 使用；未設時預設 `http://localhost:3000` |
 | `INVITE_CODES` | 選用，逗號分隔多個邀請碼。**有設定至少一個有效碼時**，註冊必須填寫且完全相符（大小寫敏感）；**未設定或解析後為空**則不強制邀請碼（方便本機開發） |
@@ -84,10 +110,19 @@ npm run dev
 
 其餘路由見 `app/api/`。
 
+---
+
 ## 生產部署注意
 
 - **上載與轉碼**：上載 API 在寫入資料庫並啟動**背景轉碼**後即回應（不阻塞使用者等待轉碼）。長片仍耗 CPU；若部署在 **Serverless／短逾時**環境，請改為佇列 + Worker，或改用長連線／專用轉碼機。
 - **SEO**：已提供 `app/robots.ts`、`app/sitemap.ts`（含公開影片觀看頁 URL）；請設定 `NEXT_PUBLIC_SITE_URL` 為正式網域。
+
+- 需要先把 `.env.example` 改名爲 `.env` 之後配置它。記得配置 `INVITE_CODES`，之後進入下面 init 流程。
+
+- **資料庫初始化**：倉庫提供 `prisma/utube.db.init`（僅含結構）。部署時請先將它複製並改名為 `prisma/utube.db`，再把 `DATABASE_URL` 指向該檔案（例如 `file:./prisma/utube.db`）。
+
+  - 上面完畢後，在 `.env` 配置邀請碼。完畢後，通過邀請碼去註冊一個帳號，之後配置為管理員。
+
 - 靜態資源可改為物件儲存 + CDN，只把 m3u8／ts 的 URL 存入資料庫。
 
 ## 技術棧

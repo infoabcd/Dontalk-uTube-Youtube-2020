@@ -56,6 +56,15 @@ export const HeroTitle = styled.h1`
 export const HeroSubtitle = styled.p`
   margin: 8px 0 4px;
   color: #5f6368;
+
+  a {
+    color: #4285f4;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
 `;
 
 export const SubtleText = styled.p`
@@ -175,6 +184,15 @@ export const FooterText = styled.p`
   margin-top: 24px;
   color: #777;
   font-size: 14px;
+
+  a {
+    color: #4285f4;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
 `;
 
 export const AccentLink = styled(Link)`
@@ -349,7 +367,7 @@ export default function SignIn() {
           <span className="orchid">k</span>
         </Logo>
         <HeroTitle>One account. All of Dontalk.</HeroTitle>
-        <HeroSubtitle>Sign in with your Dontalk(.org) Account</HeroSubtitle>
+        <HeroSubtitle>Sign in with your <a href="https://dontalk.org" target="_blank" rel="noopener noreferrer">Dontalk(.org)</a> Account</HeroSubtitle>
 
         <Card>
           <AvatarCircle>
@@ -406,7 +424,7 @@ export default function SignIn() {
         </Card>
 
         <CreateAccountLink href="/auth/signup">Create an account</CreateAccountLink>
-        <FooterText>Power by Dontalk(.org) - uTube</FooterText>
+        <FooterText>Power by <a href="https://dontalk.org" target="_blank" rel="noopener noreferrer">Dontalk(.org)</a> - <a href="https://github.com/infoabcd/Dontalk-uTube-Youtube-2020" target="_blank" rel="noopener noreferrer">uTube</a></FooterText>
       </Content>
     </Page>
   );

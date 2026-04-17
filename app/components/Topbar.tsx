@@ -35,7 +35,12 @@ const Wrapper = styled.header`
     min-width: 0;
 
     svg {
-      margin-right: 24px;
+      margin-right: 6px;
+    }
+
+    .Logo_ico {
+      height: 5vh;
+      width: auto;
     }
 
     p {
@@ -124,6 +129,7 @@ const Topbar = () => {
     <Wrapper>
       <div className="start">
         <Hamburger onClick={handleSidebar} />
+        <img className='Logo_ico' src="/favicon.ico" alt="Dontalk-uTube"/>
         <p>
           <Link href="/">Dontalk-uTube</Link>
         </p>

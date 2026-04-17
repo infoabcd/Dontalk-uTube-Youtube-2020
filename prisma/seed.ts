@@ -2,7 +2,7 @@ import { PrismaClient, type Video } from '../app/generated/prisma/client';
 import { PrismaLibSql } from '@prisma/adapter-libsql';
 import bcrypt from 'bcryptjs';
 
-const adapter = new PrismaLibSql({ url: 'file:./prisma/dev.db' });
+const adapter = new PrismaLibSql({ url: 'file:./prisma/utube.db' });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
