@@ -5,6 +5,7 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import ReactPlayer from 'react-player';
 import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
 import ModalContainer from '../pages/ModalContainer';
 import { CloseIcon, UploadVideoIcon } from './Icons';
 import useInput from '../hooks/useInput';
@@ -14,7 +15,7 @@ import { getFeed } from '../reducers/feedSlice';
 const Wrapper = styled.div`
   width: min(880px, 92vw);
   height: min(90vh, 760px);
-  background: #fff;
+  background: ${(props) => props.theme.barBg};
   box-shadow: rgba(15, 23, 42, 0.2) 0px 20px 45px;
   border-radius: 16px;
   display: flex;
@@ -87,8 +88,8 @@ const Wrapper = styled.div`
   }
 
   .content {
-    display: flex;
-    padding: 20px;
+    // display: flex;
+    padding: 0 1em;
     gap: 20px;
     flex-grow: 1;
     overflow: hidden;
@@ -96,8 +97,9 @@ const Wrapper = styled.div`
     .left-panel {
       width: 52%;
       display: flex;
-      padding-top: 7vh;
+      padding-top: 0.7vh;
       flex-direction: column;
+      margin: auto;
     }
 
     .detail {
@@ -105,6 +107,7 @@ const Wrapper = styled.div`
       display: flex;
       flex-direction: column;
       gap: 10px;
+      margin-top: 0.7em;
 
       .error {
         color: #dc2626;
@@ -195,7 +198,8 @@ const Wrapper = styled.div`
     }
 
     .video-meta {
-      margin-top: 10px;
+      margin-top: 1em;
+      margin-bottom: 1em;
       color: ${(props) => props.theme.secondaryColor};
       font-size: 12px;
       word-break: break-all;
@@ -204,7 +208,7 @@ const Wrapper = styled.div`
 
   .progress-card {
     width: min(460px, 86vw);
-    background: #fff;
+    background: ${(props) => props.theme.barBg};
     border-radius: 14px;
     padding: 24px 22px;
     box-shadow: rgba(15, 23, 42, 0.2) 0px 18px 34px;
@@ -253,6 +257,20 @@ const Wrapper = styled.div`
       transform: rotate(360deg);
     }
   }
+
+  @media screen and (max-width: 900px) {
+    width: 96vw;
+    height: min(92vh, 820px);
+
+    .content {
+      flex-direction: column;
+      overflow-y: auto;
+
+      .left-panel {
+        width: 100%;
+      }
+    }
+  }
 `;
 
 const MAX_FILE_MB = 200;
@@ -265,8 +283,7 @@ type UploadResult = {
 
 const uploadVideoWithProgress = (
   formData: FormData,
-  onProgress: (value: number) => void,
-  onUploaded: () => void
+  onProgress: (value: number) => void
 ) =>
   new Promise<UploadResult>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -281,7 +298,6 @@ const uploadVideoWithProgress = (
 
     xhr.upload.onload = () => {
       onProgress(100);
-      onUploaded();
     };
 
     xhr.onerror = () => reject(new Error('Upload failed'));
@@ -304,9 +320,9 @@ const VideoUpload = ({ open, onClose }: { open: boolean; onClose: () => void }) 
   const [videoPath, setVideoPath] = useState<string>('');
   const [uploading, setUploading] = useState(false);
   const [uploadPercent, setUploadPercent] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const dispatch = useDispatch();
+  const router = useRouter();
   const videoRef = useRef<HTMLInputElement>(null);
   const title = useInput('');
   const description = useInput('');
@@ -321,7 +337,6 @@ const VideoUpload = ({ open, onClose }: { open: boolean; onClose: () => void }) 
     setVideo(file);
     setVideoPath(URL.createObjectURL(file));
     setUploadPercent(0);
-    setIsProcessing(false);
     title.setValue(getFileName(file.name));
     if (file.size / (1024 * 1024) > MAX_FILE_MB) {
       setError(`檔案大小不可超過 ${MAX_FILE_MB}MB。`);
@@ -336,7 +351,6 @@ const VideoUpload = ({ open, onClose }: { open: boolean; onClose: () => void }) 
     setVideoPath('');
     setError('');
     setUploadPercent(0);
-    setIsProcessing(false);
     description.setValue('');
     title.setValue('');
     onClose();
@@ -349,7 +363,6 @@ const VideoUpload = ({ open, onClose }: { open: boolean; onClose: () => void }) 
 
     setUploading(true);
     setUploadPercent(0);
-    setIsProcessing(false);
     setError('');
 
     try {
@@ -358,24 +371,20 @@ const VideoUpload = ({ open, onClose }: { open: boolean; onClose: () => void }) 
       formData.append('title', title.value);
       formData.append('description', description.value);
 
-      const result = await uploadVideoWithProgress(
-        formData,
-        (value) => setUploadPercent(value),
-        () => setIsProcessing(true)
-      );
+      const result = await uploadVideoWithProgress(formData, (value) => setUploadPercent(value));
 
       if (result.ok) {
         setUploading(false);
         handleCloseModal();
         dispatch(getFeed() as any);
+        router.push('/');
+        router.refresh();
       } else {
         setUploading(false);
-        setIsProcessing(false);
         setError(result.data?.error || '上載失敗，請稍後再試。');
       }
     } catch {
       setUploading(false);
-      setIsProcessing(false);
       setError('上載失敗，請稍後再試。');
     }
   };
@@ -387,12 +396,8 @@ const VideoUpload = ({ open, onClose }: { open: boolean; onClose: () => void }) 
           <ModalContainer>
             <div className="progress-card">
               <div className="loading-spinner" aria-label="上載中" />
-              <div className="progress-title">
-                {isProcessing ? '影片已上載，正在轉碼…' : '正在上載影片…'}
-              </div>
-              <div className="progress-subtitle">
-                {isProcessing ? '請稍候，處理完成後會自動關閉視窗。' : `已完成 ${uploadPercent}%`}
-              </div>
+              <div className="progress-title">正在上載影片…</div>
+              <div className="progress-subtitle">已完成 {uploadPercent}%（上載完成後會前往首頁，轉碼在背景進行）</div>
             </div>
           </ModalContainer>
         )}
@@ -421,11 +426,11 @@ const VideoUpload = ({ open, onClose }: { open: boolean; onClose: () => void }) 
         ) : (
           <div className="content">
             <div className="left-panel">
-              <div className="preview">
-                <ReactPlayer className="react-player" controls src={videoPath} width="100%" />
-              </div>
               <div className="video-meta">
                 {video.name} · {(video.size / (1024 * 1024)).toFixed(1)}MB
+              </div>
+              <div className="preview">
+                <ReactPlayer className="react-player" controls src={videoPath} width="100%" />
               </div>
             </div>
             <div className="detail">

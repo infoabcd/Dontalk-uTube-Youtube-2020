@@ -16,6 +16,7 @@ const PlaylistContainer = ({
     id: string;
     title: string;
     thumb?: string;
+    processingStatus?: string;
     info?: { displayName?: string };
   }[];
 }) => (

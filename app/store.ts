@@ -9,9 +9,11 @@ import gridReduce from './reducers/gridSlice';
 import historyReduce from './reducers/historySlice';
 import likedVideoReduce from './reducers/likedVideoSlice';
 import menuReduce from './reducers/menuSlice';
+import uiThemeReduce from './reducers/uiThemeSlice';
 
 export const store = configureStore({
   reducer: {
+    uiTheme: uiThemeReduce,
     userdetail: userdetailReduce,
     sidebar: sidebarReduce,
     feed: feedReduce,

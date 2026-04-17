@@ -18,6 +18,11 @@ const MainContainer = styled.main`
   overflow: auto;
   width: calc(100vw - 240px);
   min-height: calc(100vh - 56px);
+
+  @media screen and (max-width: 1024px) {
+    margin-left: 0;
+    width: 100vw;
+  }
 `;
 
 export default function SubscriptionsPage() {

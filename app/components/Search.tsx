@@ -7,23 +7,27 @@ import { SearchIcon } from './Icons';
 const Wrapper = styled.div`
   display: flex;
   height: 32px;
+  width: min(640px, 100%);
 
   form {
     display: flex;
     height: 100%;
+    width: 100%;
   }
 
   .input-box {
-    max-width: 650px;
+    flex: 1;
     padding: 2px 6px;
-    border: 1px solid #ccc;
+    border: 1px solid ${(props) => props.theme.divider};
     border-right: none;
+    background: ${(props) => props.theme.barBg};
   }
   input {
     border: none;
-    max-width: 500px;
-    min-width: 250px;
-    width: 30vw;
+    width: 100%;
+    min-width: 0;
+    color: ${(props) => props.theme.primaryColor};
+    background: transparent;
   }
   button {
     width: 65px;
@@ -32,14 +36,30 @@ const Wrapper = styled.div`
     align-items: center;
     justify-content: center;
     border: none;
-    border: 1px solid #d3d3d3;
-    background-color: #f8f8f8;
+    border: 1px solid ${(props) => props.theme.divider};
+    background-color: ${(props) => props.theme.channelBg};
     cursor: pointer;
   }
   button:hover {
-    background-color: #f0f0f0;
+    background-color: ${(props) => props.theme.itemHover};
     svg {
       fill: ${(props) => props.theme.primaryColor};
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    height: 34px;
+
+    .input-box {
+      padding: 2px 8px;
+    }
+
+    button {
+      width: 44px;
+    }
+
+    input {
+      font-size: 14px;
     }
   }
 `;

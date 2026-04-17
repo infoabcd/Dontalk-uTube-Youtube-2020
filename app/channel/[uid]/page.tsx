@@ -16,6 +16,7 @@ import { closeMenu } from "../../reducers/menuSlice";
 import { updateProfile } from "../../reducers/userdetailSlice";
 import { getChannel } from "../../reducers/channelSlice";
 import type { RootState } from "../../store";
+import useUser from "../../hooks/useUser";
 
 type TabKey = "home" | "channels" | "about";
 
@@ -141,6 +142,29 @@ const Wrapper = styled.div`
       color: ${(props) => props.theme.secondaryColor};
     }
   }
+
+  @media screen and (max-width: 1024px) {
+    .channel-header {
+      padding: 0 16px;
+    }
+
+    .channel-tags {
+      padding: 0 8px;
+      overflow: auto;
+      white-space: nowrap;
+    }
+
+    .about-wrap {
+      padding: 18px 16px;
+      gap: 24px;
+      flex-direction: column;
+    }
+
+    .channels-wrap {
+      margin: 18px 16px 0;
+      gap: 14px;
+    }
+  }
 `;
 
 const MainContainer = styled.main`
@@ -151,6 +175,11 @@ const MainContainer = styled.main`
   overflow: auto;
   width: calc(100vw - 240px);
   min-height: calc(100vh - 56px);
+
+  @media screen and (max-width: 1024px) {
+    margin-left: 0;
+    width: 100vw;
+  }
 `;
 
 type ChannelProfile = {
@@ -177,6 +206,10 @@ export default function ChannelPage() {
   const uid = useSelector(
     (state: RootState) => state.userdetail.profile?.uid as string | undefined
   );
+  const { userprofile } = useUser();
+  const canManageChannelVideos =
+    !!userprofile &&
+    (userprofile.uid === channelId || userprofile.isPrivileged);
 
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<TabKey>("home");
@@ -345,7 +378,12 @@ export default function ChannelPage() {
             {tab === "home" && (
               <VideoGridFlex miniWidth={330}>
                 {videos.map((video) => (
-                  <VideoItem key={String(video.id)} video={video as never} />
+                  <VideoItem
+                    key={String(video.id)}
+                    video={video as never}
+                    canManage={canManageChannelVideos}
+                    onDeleted={() => void load()}
+                  />
                 ))}
               </VideoGridFlex>
             )}

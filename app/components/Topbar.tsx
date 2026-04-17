@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import Link from 'next/link';
-import { useState, MouseEvent } from 'react';
+import { useEffect, useState, MouseEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import styled from 'styled-components';
 import { closeSidebar, openSidebar } from '../reducers/sidebarSlice';
@@ -27,10 +27,12 @@ const Wrapper = styled.header`
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
+  gap: 16px;
 
   .start {
     display: flex;
     align-items: center;
+    min-width: 0;
 
     svg {
       margin-right: 24px;
@@ -39,12 +41,22 @@ const Wrapper = styled.header`
     p {
       font-size: 20px;
       font-weight: 400;
+      white-space: nowrap;
     }
+  }
+
+  .search-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
   }
 
   .end {
     height: 40px;
     display: flex;
+    align-items: center;
+    flex-shrink: 0;
 
     .menu-icon {
       width: 40px;
@@ -57,6 +69,30 @@ const Wrapper = styled.header`
     .menu-icon::nth-child(3) {
       position: relative;
       width: 60px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    padding: 0 10px;
+    gap: 8px;
+
+    .start svg {
+      margin-right: 12px;
+    }
+
+    .start p {
+      display: none;
+    }
+
+    .end .menu-icon {
+      width: 34px;
+      height: 34px;
+    }
+  }
+
+  @media screen and (max-width: 560px) {
+    .end .menu-icon:nth-child(2) {
+      display: none;
     }
   }
 `;
@@ -78,6 +114,12 @@ const Topbar = () => {
 
   const closeModal = () => setOpenModal(false);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 1024) {
+      dispatch(closeSidebar());
+    }
+  }, [dispatch]);
+
   return (
     <Wrapper>
       <div className="start">
@@ -86,7 +128,9 @@ const Topbar = () => {
           <Link href="/">Dontalk-uTube</Link>
         </p>
       </div>
-      <Search />
+      <div className="search-area">
+        <Search />
+      </div>
 
       <div className="end">
         {userprofile ? (

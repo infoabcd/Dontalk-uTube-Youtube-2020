@@ -19,6 +19,18 @@ const Wrapper = styled.div`
     object-fit:cover;
   }
 
+  .thumb-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
+    color: #a3a3a3;
+    font-size: 12px;
+    text-align: center;
+    padding: 4px;
+    box-sizing: border-box;
+  }
+
   .info {
     flex-grow: 1;
   }
@@ -50,12 +62,17 @@ const PlaylistItem = ({
     id: string;
     title: string;
     thumb?: string;
+    processingStatus?: string;
     info?: { displayName?: string };
   };
 }) => (
   <Link href={`/watch/${video.id}`}>
     <Wrapper>
-      <img className="thumb" src={video.thumb} alt={video.title} />
+      {!video.thumb || video.processingStatus === 'processing' ? (
+        <div className="thumb thumb-placeholder">轉碼中</div>
+      ) : (
+        <img className="thumb" src={video.thumb} alt={video.title} />
+      )}
 
       <div className="info">
         <div className="info-title">{video.title}</div>

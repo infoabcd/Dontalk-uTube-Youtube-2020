@@ -8,7 +8,7 @@ import useInput from '../hooks/useInput';
 const Wrapper = styled.div`
   width: 800px;
   height: 600px;
-  background: rgb(255, 255, 255);
+  background: ${(props) => props.theme.barBg};
   box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 10px;
   border-radius: 4px;
   display: flex;

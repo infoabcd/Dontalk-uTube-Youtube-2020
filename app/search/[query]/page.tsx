@@ -20,11 +20,20 @@ const MainContainer = styled.main`
   overflow: auto;
   width: calc(100vw - 240px);
   min-height: calc(100vh - 56px);
+
+  @media screen and (max-width: 1024px) {
+    margin-left: 0;
+    width: 100vw;
+  }
 `;
 
 const ResultsHeader = styled.div`
   padding: 20px 24px 8px;
   max-width: 100%;
+
+  @media screen and (max-width: 768px) {
+    padding: 16px 14px 4px;
+  }
 `;
 
 const ResultsTitle = styled.h1`

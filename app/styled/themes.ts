@@ -13,3 +13,19 @@ export const light = {
   divider: '#E5E5E5',
   disableBg: '#CCCCCC',
 };
+
+/** 與淺色相同欄位，供 styled-components ThemeProvider 切換 */
+export const dark = {
+  barBg: '#212121',
+  mainBg: '#0f0f0f',
+  channelBg: '#181818',
+  modalBg: 'rgba(33,33,33,0.98)',
+  primaryColor: '#f1f1f1',
+  secondaryColor: '#aaaaaa',
+  accent: '#FF0000',
+  toggle: '#3ea6ff',
+  itemHover: '#3a3a3a',
+  itemActive: '#3a3a3a',
+  divider: '#3a3a3a',
+  disableBg: '#555555',
+};

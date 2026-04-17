@@ -25,6 +25,7 @@ import type { AppDispatch } from "../../store";
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -36,6 +37,8 @@ export default function SignUp() {
     setDisplayName(event.target.value);
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => setEmail(event.target.value);
   const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => setPassword(event.target.value);
+  const handleInviteChange = (event: ChangeEvent<HTMLInputElement>) =>
+    setInviteCode(event.target.value);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,12 +51,16 @@ export default function SignUp() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password, displayName }),
+        body: JSON.stringify({ email, password, displayName, inviteCode }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 429) {
+          const sec = parseInt(response.headers.get("Retry-After") || "60", 10);
+          throw new Error(`請求過於頻繁，請約 ${sec} 秒後再試`);
+        }
         throw new Error(data.error || "Registration failed");
       }
 
@@ -95,6 +102,7 @@ export default function SignUp() {
               type="text"
               value={displayName}
               onChange={handleDisplayNameChange}
+              placeholder="Display Name"
               required
             />
           </div>
@@ -106,6 +114,7 @@ export default function SignUp() {
               type="email"
               value={email}
               onChange={handleEmailChange}
+              placeholder="Email"
               required
             />
           </div>
@@ -117,7 +126,20 @@ export default function SignUp() {
               type="password"
               value={password}
               onChange={handlePasswordChange}
+              placeholder="Password"
               required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="inviteCode">Invite Code</Label>
+            <Input
+              id="inviteCode"
+              type="text"
+              value={inviteCode}
+              onChange={handleInviteChange}
+              placeholder="聯繫Dontalk(.org)獲取"
+              autoComplete="off"
             />
           </div>
 

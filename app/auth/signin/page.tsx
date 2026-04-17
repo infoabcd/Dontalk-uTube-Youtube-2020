@@ -308,6 +308,10 @@ export default function SignIn() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 429) {
+          const sec = parseInt(response.headers.get("Retry-After") || "60", 10);
+          throw new Error(`請求過於頻繁，請約 ${sec} 秒後再試`);
+        }
         throw new Error(data.error || "Login failed");
       }
 
@@ -365,6 +369,7 @@ export default function SignIn() {
                 type="email"
                 value={email}
                 onChange={handleEmailChange}
+                placeholder="Email"
                 required
               />
             </div>
@@ -376,6 +381,7 @@ export default function SignIn() {
                 type="password"
                 value={password}
                 onChange={handlePasswordChange}
+                placeholder="Password"
                 required
               />
             </div>

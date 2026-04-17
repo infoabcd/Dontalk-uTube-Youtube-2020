@@ -8,7 +8,44 @@ import { transcodeToHls } from "@/app/lib/transcode";
 import { formatVideoResponse } from "@/app/lib/video-format";
 
 export const runtime = "nodejs";
-export const maxDuration = 600;
+/** 上傳本體結束後即回應；轉碼在程序內非同步執行（自架長連線有效，Serverless 請改佇列） */
+export const maxDuration = 300;
+
+function runTranscodeInBackground(
+  videoId: string,
+  tmpPath: string,
+  outDir: string
+) {
+  void (async () => {
+    try {
+      const { masterRelativeUrl, posterRelativeUrl } = await transcodeToHls(
+        tmpPath,
+        outDir
+      );
+      await fs.unlink(tmpPath).catch(() => {});
+
+      await prisma.video.update({
+        where: { id: videoId },
+        data: {
+          thumbnail: posterRelativeUrl,
+          videoUrl: masterRelativeUrl,
+          hlsMasterUrl: masterRelativeUrl,
+          processingStatus: "ready",
+        },
+      });
+    } catch (err) {
+      console.error("Background transcode error:", err);
+      await fs.unlink(tmpPath).catch(() => {});
+      await fs.rm(outDir, { recursive: true, force: true }).catch(() => {});
+      await prisma.video
+        .update({
+          where: { id: videoId },
+          data: { processingStatus: "failed" },
+        })
+        .catch(() => {});
+    }
+  })();
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,48 +83,32 @@ export async function POST(request: NextRequest) {
     const tmpPath = path.join(tmpDir, `${videoId}${ext}`);
 
     await fs.mkdir(tmpDir, { recursive: true });
+    await fs.mkdir(outDir, { recursive: true });
 
     const buf = Buffer.from(await file.arrayBuffer());
     await fs.writeFile(tmpPath, buf);
 
-    try {
-      const { masterRelativeUrl, posterRelativeUrl } = await transcodeToHls(
-        tmpPath,
-        outDir
-      );
-      await fs.unlink(tmpPath).catch(() => {});
+    const video = await prisma.video.create({
+      data: {
+        id: videoId,
+        title,
+        description: description || null,
+        thumbnail: null,
+        videoUrl: "",
+        hlsMasterUrl: null,
+        processingStatus: "processing",
+        userId: payload.userId,
+      },
+      include: {
+        user: {
+          select: { id: true, displayName: true, photoURL: true },
+        },
+      },
+    });
 
-      const video = await prisma.video.create({
-        data: {
-          id: videoId,
-          title,
-          description: description || null,
-          thumbnail: posterRelativeUrl,
-          videoUrl: masterRelativeUrl,
-          hlsMasterUrl: masterRelativeUrl,
-          processingStatus: "ready",
-          userId: payload.userId,
-        },
-        include: {
-          user: {
-            select: { id: true, displayName: true, photoURL: true },
-          },
-        },
-      });
+    runTranscodeInBackground(videoId, tmpPath, outDir);
 
-      return NextResponse.json(formatVideoResponse(video), { status: 201 });
-    } catch (err) {
-      console.error("Upload transcode error:", err);
-      await fs.rm(outDir, { recursive: true, force: true }).catch(() => {});
-      await fs.unlink(tmpPath).catch(() => {});
-      return NextResponse.json(
-        {
-          error:
-            "Transcode failed. The bundled ffmpeg may be missing or the file may be invalid.",
-        },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json(formatVideoResponse(video), { status: 201 });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });

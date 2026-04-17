@@ -16,6 +16,15 @@ const Wrapper = styled.div`
     font-size: 14px;
     flex-grow: 1;
   }
+
+  @media screen and (max-width: 768px) {
+    height: 34px;
+    padding: 4px 8px;
+
+    span {
+      display: none;
+    }
+  }
 `;
 
 const SignInButton = (props) => (

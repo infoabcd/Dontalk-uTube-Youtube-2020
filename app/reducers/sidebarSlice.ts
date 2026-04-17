@@ -5,7 +5,7 @@ type SidebarState = {
 };
 
 const initialState: SidebarState = {
-  sidebar: true,
+  sidebar: false,
 };
 
 const sidebarSlice = createSlice({

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { getCurrentUser } from "@/app/lib/auth";
+import { toAuthClientUser } from "@/app/lib/auth-user";
 
 export async function GET() {
   try {
@@ -26,14 +27,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      user: {
-        uid: user.id,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        banner: user.banner,
-        description: user.description,
-      },
+      user: toAuthClientUser(user),
     });
   } catch (error) {
     console.error("Auth check error:", error);
@@ -61,14 +55,7 @@ export async function PUT(request: NextRequest) {
     });
 
     return NextResponse.json({
-      user: {
-        uid: user.id,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        banner: user.banner,
-        description: user.description,
-      },
+      user: toAuthClientUser(user),
     });
   } catch (error) {
     console.error("Update profile error:", error);
