@@ -1,6 +1,8 @@
-# Dontalk(.org) UTube Next.js（uTube）
+# Dontalk(.org) UTube Next.js（uTube）v1.0
 
 基於倉庫 - https://github.com/DUO-1080/utube/
+
+**注意：項目默認佔用3000端口。如果你希望指定端口，請加啟動參數 `next dev -p 4000 / next start -p 4000`**
 
 基於 **Next.js App Router**、**Prisma（SQLite）** 與 **JWT Cookie 登入** 的本機影片站。上載的影片會在伺服器端以 **ffmpeg** 轉成多碼率 **HLS（m3u8 + ts）**，瀏覽器透過 **hls.js** 自適應播放，並可在支援的瀏覽器中手動切換清晰度。
 
@@ -113,6 +115,8 @@ npm run dev
 ---
 
 ## 生產部署注意
+
+**注意：項目默認佔用3000端口。如果你希望指定端口，請加啟動參數 `next dev -p 4000 / next start -p 4000`**
 
 - **上載與轉碼**：上載 API 在寫入資料庫並啟動**背景轉碼**後即回應（不阻塞使用者等待轉碼）。長片仍耗 CPU；若部署在 **Serverless／短逾時**環境，請改為佇列 + Worker，或改用長連線／專用轉碼機。
 - **SEO**：已提供 `app/robots.ts`、`app/sitemap.ts`（含公開影片觀看頁 URL）；請設定 `NEXT_PUBLIC_SITE_URL` 為正式網域。
