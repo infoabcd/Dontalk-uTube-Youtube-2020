@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma generated files
+/app/generated/prisma
+
+# Local uploaded & transcoded media (HLS segments, posters)
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+# Guardrail: ignore accidental ffmpeg segment output in project root
+/segment*.ts
+
+TEST.md

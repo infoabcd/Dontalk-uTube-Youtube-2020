@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  displayName   String?
+  photoURL      String?
+  banner        String?
+  description   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  videos        Video[]
+  comments      Comment[]
+  subscriptions Subscription[] @relation("subscriber")
+  subscribers   Subscription[] @relation("channel")
+  likedVideos   LikedVideo[]
+  history       History[]
+}
+
+model Video {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  thumbnail     String?
+  /// Progressive / legacy URL (e.g. external demo or MP4). Prefer hlsMasterUrl when set.
+  videoUrl      String
+  /// Public path to HLS master playlist, e.g. /uploads/videos/{id}/master.m3u8
+  hlsMasterUrl  String?
+  processingStatus String @default("ready") // ready | processing | failed
+  views         Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  comments      Comment[]
+  likedBy       LikedVideo[]
+  inHistory     History[]
+}
+
+model Comment {
+  id            String    @id @default(cuid())
+  text          String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  videoId       String
+  video         Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+
+  subscriberId  String
+  subscriber    User      @relation("subscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  channelId     String
+  channel       User      @relation("channel", fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, channelId])
+}
+
+model LikedVideo {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  videoId       String
+  video         Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+}
+
+model History {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  videoId       String
+  video         Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+}
