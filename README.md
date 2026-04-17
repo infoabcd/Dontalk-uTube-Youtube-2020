@@ -58,6 +58,7 @@ npm install
 ```bash
 # .env 或 .env.local 中設定 DATABASE_URL，例如：
 # DATABASE_URL="file:./prisma/utube.db"
+# 注意，生產環境的 .env.local 會覆蓋 .env 啊！導致資源404。
 
 npx prisma migrate deploy
 npx prisma generate
@@ -83,6 +84,8 @@ npm run dev
 |------|------|
 | `DATABASE_URL` | SQLite 路徑，例如 `file:./prisma/utube.db` |
 | `JWT_SECRET` | JWT 簽名密鑰（生產環境務必修改） |
+| `MAX_UPLOAD_MB` | 伺服器端實際上載大小限制（MB），未設時預設 `200` |
+| `NEXT_PUBLIC_MAX_UPLOAD_MB` | 前端顯示與預檢用上載大小限制（MB），未設時預設 `200`；建議與 `MAX_UPLOAD_MB` 一致 |
 | `NEXT_PUBLIC_SITE_URL` | 選用，正式網址（含協議），供 `metadataBase`、Open Graph、`/sitemap.xml`／`robots.txt` 使用；未設時預設 `http://localhost:3000` |
 | `INVITE_CODES` | 選用，逗號分隔多個邀請碼。**有設定至少一個有效碼時**，註冊必須填寫且完全相符（大小寫敏感）；**未設定或解析後為空**則不強制邀請碼（方便本機開發） |
 | `ADMIN_USER_IDS` | 選用，逗號分隔的用戶 id（與資料庫 `User.id` 一致），列為特權帳號，可刪除任意影片 |
@@ -129,6 +132,56 @@ npm run dev
 
 - 靜態資源可改為物件儲存 + CDN，只把 m3u8／ts 的 URL 存入資料庫。
 
-## 技術棧
+### 常見問題
 
-Next.js、React、Redux Toolkit、styled-components、Prisma、SQLite（libSQL 配接器）、bcrypt、jsonwebtoken、hls.js、@ffmpeg-installer/ffmpeg。
+1. 邀請碼無效？配置無效？ 請記住 `.env.local` 僅用於本地開發。
+
+   - 生產環境記得刪除 `.env.local`。否則會覆蓋 `.env` 的配置。
+
+   - 生產環境記得刪除 `.env.local`。否則會覆蓋 `.env` 的配置。
+
+   - 生產環境記得刪除 `.env.local`。否則會覆蓋 `.env` 的配置。
+
+2. 封面無法加載？視頻無法加載？
+
+    查看 Next 进程的 cwd (工作目錄)： `pwdx $(pgrep -f "next start" | head -n1)`
+
+    文件实际在：`/var/www/utube/public/uploads/videos/.../poster.jpg`
+
+    項目在：`/var/www/utube/`，而查看 Next 进程的 cwd 發現目錄在：`/var/www/next` 就會報錯404
+    需要在 Nginx 做配置
+    ```conf
+    location /uploads/ {
+        alias /var/www/utube/public/uploads/;
+        try_files $uri =404;
+        access_log off;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+    ```
+
+  3. 如何更改上載文件大小的最大支持
+  
+    默認支持 200m 文件上載。如需要調整，請在 `.env` 中配置
+    ```yaml
+    MAX_UPLOAD_MB="1024"
+    NEXT_PUBLIC_MAX_UPLOAD_MB="1024"
+    ```
+    `MAX_UPLOAD_MB`：服务端最终校验。`NEXT_PUBLIC_MAX_UPLOAD_MB`：前端提示与预检.
+
+    記得修改你的 Nginx. 修改/添加 `client_max_body_size 1024m;`
+
+---
+
+## 技術棧
+```
+Next.js
+React
+Redux Toolkit
+styled-components
+Prisma
+SQLite（libSQL 配接器）
+bcrypt
+jsonwebtoken
+hls.js
+@ffmpeg-installer/ffmpeg
+```

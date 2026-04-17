@@ -273,7 +273,14 @@ const Wrapper = styled.div`
   }
 `;
 
-const MAX_FILE_MB = 200;
+const MAX_FILE_MB = (() => {
+  const raw = process.env.NEXT_PUBLIC_MAX_UPLOAD_MB;
+  const parsed = Number(raw);
+  if (!raw || !Number.isFinite(parsed) || parsed <= 0) {
+    return 200;
+  }
+  return parsed;
+})();
 
 type UploadResult = {
   ok: boolean;

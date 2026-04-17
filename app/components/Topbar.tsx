@@ -41,6 +41,7 @@ const Wrapper = styled.header`
     .Logo_ico {
       height: 5vh;
       width: auto;
+      margin-top: 0.5em;
     }
 
     p {
@@ -129,7 +130,9 @@ const Topbar = () => {
     <Wrapper>
       <div className="start">
         <Hamburger onClick={handleSidebar} />
-        <img className='Logo_ico' src="/favicon.ico" alt="Dontalk-uTube"/>
+        <Link href="/">
+          <img className='Logo_ico' src="/favicon.ico" alt="Dontalk-uTube"/>
+        </Link>
         <p>
           <Link href="/">Dontalk-uTube</Link>
         </p>

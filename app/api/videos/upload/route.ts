@@ -10,6 +10,16 @@ import { formatVideoResponse } from "@/app/lib/video-format";
 export const runtime = "nodejs";
 /** 上傳本體結束後即回應；轉碼在程序內非同步執行（自架長連線有效，Serverless 請改佇列） */
 export const maxDuration = 300;
+const DEFAULT_MAX_UPLOAD_MB = 200;
+
+function getMaxUploadMb(): number {
+  const raw = process.env.MAX_UPLOAD_MB;
+  const parsed = Number(raw);
+  if (!raw || !Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_MAX_UPLOAD_MB;
+  }
+  return parsed;
+}
 
 function runTranscodeInBackground(
   videoId: string,
@@ -49,6 +59,7 @@ function runTranscodeInBackground(
 
 export async function POST(request: NextRequest) {
   try {
+    const maxUploadMb = getMaxUploadMb();
     const payload = await getCurrentUser();
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -67,9 +78,9 @@ export async function POST(request: NextRequest) {
     }
 
     const size = file.size;
-    if (size / (1024 * 1024) > 200) {
+    if (size / (1024 * 1024) > maxUploadMb) {
       return NextResponse.json(
-        { error: "File too large (max 200MB)" },
+        { error: `File too large (max ${maxUploadMb}MB)` },
         { status: 400 }
       );
     }

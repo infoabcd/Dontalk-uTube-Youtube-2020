@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s | Dontalk-uTube",
   },
   description:
-    "Dontalk-uTube 是一個影片分享平台，受邀用戶可以上載與觀看影片，支援 HLS 多碼率播放、頻道與留言。感謝你的訪問與觀看。",
+    "Dontalk-uTube 是一個影片分享平台，受邀用戶可以上載與討論影片，支援 HLS 多碼率播放、頻道與留言。感謝你的訪問與觀看。",
   openGraph: {
     type: "website",
     locale: "zh_HK",

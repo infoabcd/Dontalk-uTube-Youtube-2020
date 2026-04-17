@@ -14,6 +14,7 @@ import {
   SubscriptionIcon,
   TrendingIcon,
   VideoIcon,
+  InfoIcon
 } from './Icons';
 import NavItem from './NavItem';
 import SignInButton from './SignInButton';
@@ -160,6 +161,11 @@ const Sidebar = () => {
               <div className="items-section" />
             </>
           )}
+
+        <Link href="/about" className={pathname === '/about' ? 'nav-active' : ''} onClick={closeMobileSidebar}>
+          <NavItem text="About" Icon={InfoIcon} classes="icon" />
+        </Link>
+
         </div>
       </Wrapper>
     </>
